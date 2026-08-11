@@ -13,14 +13,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Unzip project files & move contents
+      - name: Unzip project files
         run: |
           if [ -f "finsmpro_flutter.zip" ]; then
             unzip -o finsmpro_flutter.zip
-            if [ -d "finsmpro_flutter" ]; then
-              cp -rn finsmpro_flutter/* . || true
-              cp -rn finsmpro_flutter/.* . 2>/dev/null || true
-            fi
           fi
 
       - name: Set up Java
@@ -35,13 +31,15 @@ jobs:
           channel: 'stable'
 
       - name: Install dependencies
+        working-directory: finsmpro_flutter
         run: flutter pub get
 
       - name: Build APK
+        working-directory: finsmpro_flutter
         run: flutter build apk --release --no-tree-shake-icons
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: finsmpro-release-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
+          path: finsmpro_flutter/build/app/outputs/flutter-apk/app-release.apk
