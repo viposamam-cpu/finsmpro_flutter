@@ -13,11 +13,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Unzip project files
+      - name: Unzip project files & move contents
         run: |
           if [ -f "finsmpro_flutter.zip" ]; then
             unzip -o finsmpro_flutter.zip
-            cp -rn finsmpro_flutter/* . || true
+            if [ -d "finsmpro_flutter" ]; then
+              cp -rn finsmpro_flutter/* . || true
+              cp -rn finsmpro_flutter/.* . 2>/dev/null || true
+            fi
           fi
 
       - name: Set up Java
@@ -42,4 +45,3 @@ jobs:
         with:
           name: finsmpro-release-apk
           path: build/app/outputs/flutter-apk/app-release.apk
-          
