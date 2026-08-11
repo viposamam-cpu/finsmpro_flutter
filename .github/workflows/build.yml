@@ -30,10 +30,20 @@ jobs:
         with:
           channel: 'stable'
 
-      - name: Generate Android Platform & Build Debug APK
+      - name: Prepare Android & Set Min SDK 21
         run: |
           cd finsmpro_flutter
           flutter create . --org com.finsmpro.app --platforms=android
+          sed -i 's/flutter.minSdkVersion/21/g' android/app/build.gradle || true
+          sed -i 's/minSdkVersion .*/minSdkVersion 21/g' android/app/build.gradle || true
+          flutter pub get
+          flutter build apk --debug
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: finsmpro-debug-apk
+          path: finsmpro_flutter/build/app/outputs/flutter-apk/app-debug.apk
           flutter pub get
           flutter build apk --debug
 
