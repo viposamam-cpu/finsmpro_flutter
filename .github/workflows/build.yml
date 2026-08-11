@@ -30,10 +30,23 @@ jobs:
         with:
           channel: 'stable'
 
-      - name: Build APK inside directory
-        run: |
-          TARGET_DIR=$(find . -mindepth 2 -name "pubspec.yaml" -exec dirname {} \; | head -n 1)
-          echo "Target Directory is: $TARGET_DIR"
+      - name: Install dependencies
+        defaults:
+          run:
+            working-directory: finsmpro_flutter
+        run: flutter pub get
+
+      - name: Build APK
+        defaults:
+          run:
+            working-directory: finsmpro_flutter
+        run: flutter build apk --release --no-tree-shake-icons
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: finsmpro-release-apk
+          path: finsmpro_flutter/build/app/outputs/flutter-apk/app-release.apk
           cd "$TARGET_DIR"
           flutter pub get
           flutter build apk --release --no-tree-shake-icons
