@@ -30,10 +30,18 @@ jobs:
         with:
           channel: 'stable'
 
-      - name: Generate Android Platform & Build APK
+      - name: Generate Android Platform & Build Debug APK
         run: |
           cd finsmpro_flutter
-          flutter create . --platforms=android
+          flutter create . --org com.finsmpro.app --platforms=android
+          flutter pub get
+          flutter build apk --debug
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: finsmpro-debug-apk
+          path: finsmpro_flutter/build/app/outputs/flutter-apk/app-debug.apk
           flutter pub get
           flutter build apk --release --no-tree-shake-icons
 
