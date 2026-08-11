@@ -1,4 +1,4 @@
-name: Build Flutter APK
+name: Build Universal APK
 
 on:
   push:
@@ -30,23 +30,23 @@ jobs:
         with:
           channel: 'stable'
 
-      - name: Recreate Android & Build Fixed APK
+      - name: Recreate Android & Build Universal Release
         run: |
           cd finsmpro_flutter
           rm -rf android
-          flutter create . --org com.finsmpro.omega --platforms=android
+          # إنشاء هوية حزمة جديدة كلياً لتجنب أي تعارض في الجوال
+          flutter create . --org com.osamah.finsmproomega --platforms=android
           
-          # ضبط الحد الأدنى للنظام وتفعيل MultiDex
-          sed -i 's/minSdkVersion .*/minSdkVersion 21/g' android/app/build.gradle || true
-          sed -i 's/flutter.minSdkVersion/21/g' android/app/build.gradle || true
-          sed -i '/defaultConfig {/a \        multiDexEnabled true' android/app/build.gradle || true
-
+          # ضبط التوافقية بشكل آمن
+          sed -i 's/flutter.minSdkVersion/23/g' android/app/build.gradle || true
+          
+          flutter clean
           flutter pub get
-          flutter build apk --debug --target-platform android-arm,android-arm64
+          # بناء نسخة شاملة (Fat APK) تتوافق مع جميع المعالجات
+          flutter build apk --release
 
-      - name: Upload APK Artifact
+      - name: Upload Universal APK
         uses: actions/upload-artifact@v4
         with:
-          name: finsmpro-debug-apk
-          path: finsmpro_flutter/build/app/outputs/flutter-apk/app-debug.apk
-          
+          name: finsmpro-universal-apk
+          path: finsmpro_flutter/build/app/outputs/flutter-apk/app-release.apk
