@@ -13,16 +13,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Unzip & Move to root
+      - name: Unzip project files
         run: |
           if [ -f "finsmpro_flutter.zip" ]; then
             unzip -o finsmpro_flutter.zip
-          fi
-          # البحث عن المجلد الذي يحتوي pubspec.yaml ونقل كافة محتوياته إلى الجذر مباشرة
-          PROJECT_DIR=$(find . -maxdepth 3 -name "pubspec.yaml" -exec dirname {} \;)
-          if [ "$PROJECT_DIR" != "." ]; then
-            cp -rn $PROJECT_DIR/* . || true
-            cp -rn $PROJECT_DIR/.* . 2>/dev/null || true
           fi
 
       - name: Set up Java
@@ -36,14 +30,16 @@ jobs:
         with:
           channel: 'stable'
 
-      - name: Install dependencies
-        run: flutter pub get
-
-      - name: Build APK
-        run: flutter build apk --release --no-tree-shake-icons
+      - name: Build APK inside directory
+        run: |
+          TARGET_DIR=$(find . -maxdepth 3 -name "pubspec.yaml" -exec dirname {} \;)
+          echo "Target Directory is: $TARGET_DIR"
+          cd "$TARGET_DIR"
+          flutter pub get
+          flutter build apk --release --no-tree-shake-icons
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: finsmpro-release-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
+          path: "**/build/app/outputs/flutter-apk/app-release.apk"
