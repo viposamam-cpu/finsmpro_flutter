@@ -30,17 +30,23 @@ jobs:
         with:
           channel: 'stable'
 
-      - name: Prepare Android & Set Min SDK 21
+      - name: Recreate Android & Build Fixed APK
         run: |
           cd finsmpro_flutter
-          flutter create . --org com.finsmpro.app --platforms=android
-          sed -i 's/flutter.minSdkVersion/21/g' android/app/build.gradle || true
+          rm -rf android
+          flutter create . --org com.finsmpro.omega --platforms=android
+          
+          # ضبط الحد الأدنى للنظام وتفعيل MultiDex
           sed -i 's/minSdkVersion .*/minSdkVersion 21/g' android/app/build.gradle || true
+          sed -i 's/flutter.minSdkVersion/21/g' android/app/build.gradle || true
+          sed -i '/defaultConfig {/a \        multiDexEnabled true' android/app/build.gradle || true
+
           flutter pub get
-          flutter build apk --debug
+          flutter build apk --debug --target-platform android-arm,android-arm64
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: finsmpro-debug-apk
           path: finsmpro_flutter/build/app/outputs/flutter-apk/app-debug.apk
+          
