@@ -32,7 +32,7 @@ jobs:
 
       - name: Build APK inside directory
         run: |
-          TARGET_DIR=$(find . -maxdepth 3 -name "pubspec.yaml" -exec dirname {} \;)
+          TARGET_DIR=$(find . -mindepth 2 -name "pubspec.yaml" -exec dirname {} \; | head -n 1)
           echo "Target Directory is: $TARGET_DIR"
           cd "$TARGET_DIR"
           flutter pub get
