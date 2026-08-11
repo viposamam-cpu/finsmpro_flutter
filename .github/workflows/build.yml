@@ -30,14 +30,11 @@ jobs:
         with:
           channel: 'stable'
 
-      - name: Install dependencies
+      - name: Generate Android Platform & Build APK
         run: |
           cd finsmpro_flutter
+          flutter create . --platforms=android
           flutter pub get
-
-      - name: Build APK
-        run: |
-          cd finsmpro_flutter
           flutter build apk --release --no-tree-shake-icons
 
       - name: Upload APK Artifact
